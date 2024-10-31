@@ -48,33 +48,34 @@ print(f'Max temperature : {max(temp):.2f}')
 
 
 # Let's write a function to filter out only items that meet the condition
-def filter(condition, dict_list):
-    filtered_list = []
-    for item in dict_list:
-        if condition(item):
-            filtered_list.append(item)
-    return filtered_list
+class Data:
+    def __init__(self, data):
+        self.data = data
+
+    def filter(self, condition):
+        filtered_list = []
+        for item in self.data:
+            if condition(item):
+                filtered_list.append(item)
+        return Data(filtered_list)
+
+    def aggregate(self, aggregation_key, aggregation_function):
+        temp = []
+        for items in self.data:
+            temp.append(float(items[aggregation_key]))
+        return aggregation_function(temp)
 
 
-x = filter(lambda x: float(x['latitude']) >= 60.0, cities)
-for item in x:
-    print(item)
-
-
-# Let's write a function to do aggregation given an aggregation function and an aggregation key
-def aggregate(aggregation_key, aggregation_function, dict_list):
-    temp = []
-    for items in dict_list:
-        temp.append(float(items[aggregation_key]))
-    return aggregation_function(temp)
-
-
+All_d = Data(cities)
+print(All_d.data)
+d1 = All_d.filter(lambda x: x['country'] == 'Italy')
+d2 = All_d.filter(lambda x: x['country'] == 'Sweden')
 # Let's write code to
 # - print the average temperature for all the cities in Italy
-print(f'Average temperature in Italy : {aggregate('temperature', lambda x: sum(x)/len(x), filter(lambda x: x['country'] == 'Italy', cities)):.2f}')
+print(f'Average temperature in Italy : {d1.aggregate('temperature', lambda x: sum(x)/len(x)):.2f}')
 # - print the average temperature for all the cities in Sweden
-print(f'Average temperature in Sweden : {aggregate('temperature', lambda x: sum(x)/len(x), filter(lambda x: x['country'] == 'Sweden', cities)):.2f}')
+print(f'Average temperature in Sweden : {d2.aggregate('temperature', lambda x: sum(x)/len(x)):.2f}')
 # - print the min temperature for all the cities in Italy
-print(f'Minimum temperature in Italy : {aggregate('temperature', lambda x: min(x), filter(lambda x: x['country'] == 'Italy', cities)):.2f}')
+print(f'Minimum temperature in Italy : {d1.aggregate('temperature', lambda x: min(x)):.2f}')
 # - print the max temperature for all the cities in Sweden
-print(f'Max temperature in Italy : {aggregate('temperature', lambda x: max(x), filter(lambda x: x['country'] == 'Sweden', cities)):.2f}')
+print(f'Max temperature in Italy : {d2.aggregate('temperature', lambda x: max(x)):.2f}')
